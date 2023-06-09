@@ -34,7 +34,7 @@ services:
     image: dynamic-models-image
     env_file:
       - .env
-    command: sh -c "python manage.py migrate"
+    command: python manage.py migrate
     depends_on:
       database:
         condition: service_healthy
