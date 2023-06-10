@@ -30,7 +30,7 @@ class DynamicModelService:
     @staticmethod
     def prepare_fields(dynamic_model_instance):
         model_fields = {
-            'id': models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')
+            'id': models.BigAutoField(auto_created=True, primary_key=True, serialize=False)
         }
 
         for field in dynamic_model_instance.fields:

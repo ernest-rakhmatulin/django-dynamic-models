@@ -1,6 +1,11 @@
-from django.urls import path
-from .views import DynamicModelAPIView
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+
+from .views import DynamicModelViewSet
+
+router = DefaultRouter()
+router.register(r'table', DynamicModelViewSet, basename='dynamic_table')
 
 urlpatterns = [
-    path('table/', DynamicModelAPIView.as_view(), name='dynamic_table'),
+    path('', include(router.urls)),
 ]
