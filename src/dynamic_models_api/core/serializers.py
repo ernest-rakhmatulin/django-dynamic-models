@@ -1,4 +1,5 @@
 from rest_framework import serializers
+
 from .models import DynamicModel
 from .services import DynamicModelService
 
@@ -15,3 +16,8 @@ class DynamicModelSerializer(serializers.ModelSerializer):
         model = DynamicModel
         fields = ['pk', 'title', 'fields']
         read_only_fields = ['pk']
+
+    def create(self, validated_data):
+        instance = super().create(validated_data)
+        DynamicModelService.create_table_for_model(instance)
+        return instance
