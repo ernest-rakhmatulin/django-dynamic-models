@@ -1,6 +1,7 @@
 from django.apps import apps
 from django.db import connection
 from django.db import models
+from rest_framework import serializers
 
 from core.models import DynamicModel
 
@@ -45,10 +46,29 @@ class DynamicModelService:
         table_name = DynamicModelService.prepare_table_name(model_instance)
         
         model_meta = type('Meta', (), {'db_table': table_name})
-        model_attrs = {'__module__': 'core.dynamic_models', 'Meta': model_meta, **model_fields}
-        model_class = type(model_instance.name, (models.Model,), model_attrs)
-        
+        model_class = type(model_instance.name, (models.Model,), {
+            '__module__': 'core.runtime_generated',
+            'Meta': model_meta,
+            **model_fields
+        })
+
         return model_class
+
+    @staticmethod
+    def create_serializer_class(model_instance):
+        model_class = DynamicModelService.get_or_create_model_class(model_instance)
+
+        serializer_meta = type('Meta', (), {
+            '__module__': 'core.runtime_generated',
+            'model': model_class,
+            'fields': '__all__'
+        })
+        serializer_class = type(f"{model_class.__name__}Serializer", (serializers.ModelSerializer,), {
+            '__module__': 'core.runtime_generated',
+            'Meta': serializer_meta
+        })
+
+        return serializer_class
 
     @staticmethod
     def get_or_create_model_class(model_instance):
