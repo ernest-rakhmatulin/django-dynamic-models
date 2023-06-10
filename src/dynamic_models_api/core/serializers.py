@@ -5,7 +5,7 @@ from .services import DynamicModelService
 
 
 class FieldSerializer(serializers.Serializer):
-    title = serializers.CharField(max_length=255)
+    name = serializers.CharField(max_length=255)
     type = serializers.ChoiceField(choices=DynamicModelService.get_choices())
 
 
@@ -14,7 +14,7 @@ class DynamicModelSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = DynamicModel
-        fields = ['pk', 'title', 'fields']
+        fields = ['pk', 'name', 'fields']
         read_only_fields = ['pk']
 
     def create(self, validated_data):

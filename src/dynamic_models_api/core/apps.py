@@ -1,5 +1,6 @@
 from django.apps import AppConfig
 from django.db import connection
+from django.db.migrations.executor import MigrationExecutor
 
 
 class CoreConfig(AppConfig):
@@ -8,11 +9,12 @@ class CoreConfig(AppConfig):
 
     def ready(self):
         from core.services import DynamicModelService
-        from core.models import DynamicModel
 
-        # Check if the table associated with the DynamicModel exists in the database
-        table_exists = DynamicModel._meta.db_table in connection.introspection.table_names()
+        # Generating the migration plan for Core application
+        executor = MigrationExecutor(connection)
+        targets = executor.loader.graph.leaf_nodes(CoreConfig.name)
+        migrations_to_apply = executor.migration_plan(targets)
 
-        # If the table exists, call a service method to load dynamic models
-        if table_exists:
+        # If there are no migrations to apply (i.e., all migrations have been already applied)
+        if not migrations_to_apply:
             DynamicModelService.prepare_existing_models_on_ready()
