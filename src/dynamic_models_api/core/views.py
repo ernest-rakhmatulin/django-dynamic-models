@@ -25,7 +25,6 @@ class DynamicModelViewSet(ModelViewSet):
         model_instance = self.get_object()
         serializer_class = DynamicModelService.create_serializer_class(model_instance)
         model_class = DynamicModelService.get_or_create_model_class(model_instance)
-
         objects = model_class.objects.all()
         serializer = serializer_class(instance=objects, many=True)
         return Response(serializer.data)
