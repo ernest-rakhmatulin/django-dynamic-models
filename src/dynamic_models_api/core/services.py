@@ -29,7 +29,7 @@ class DynamicModelService:
         return f'dynamic_{model_instance.name.lower()}'
 
     @staticmethod
-    def prepare_fields(model_instance):
+    def prepare_fields(model_instance, model_class=None):
         model_fields = {
             'id': models.BigAutoField(auto_created=True, primary_key=True, serialize=False)
         }
@@ -37,6 +37,11 @@ class DynamicModelService:
         for field in model_instance.fields:
             field_class = DynamicModelService.fields_map[field['type']]['class']
             model_fields[field['name']] = field_class()
+
+        if model_class:
+            for name, field in model_fields.items():
+                field.set_attributes_from_name(name)
+                # field.contribute_to_class(model_class, name)
 
         return model_fields
 
@@ -89,3 +94,27 @@ class DynamicModelService:
 
         with connection.schema_editor() as schema_editor:
             schema_editor.create_model(prepared_model)
+
+    @staticmethod
+    def update_table_for_model(model_instance):
+        model_class = apps.get_model(app_label='core', model_name=model_instance.name)
+
+        existing_fields = {field.name: field for field in model_class._meta.get_fields()}
+        updated_fields = DynamicModelService.prepare_fields(model_instance, model_class=model_class)
+
+        existing_keys = set(existing_fields.keys())
+        updated_keys = set(updated_fields.keys())
+
+        existing_only = existing_keys - updated_keys
+        updated_only = updated_keys - existing_keys
+        intersection_keys = existing_keys & updated_keys
+
+        with connection.schema_editor() as schema_editor:
+            for field in existing_only:
+                schema_editor.remove_field(model_class, existing_fields[field])
+            for field in updated_only:
+                updated_fields[field].column = field
+                schema_editor.add_field(model_class, updated_fields[field])
+            for field in intersection_keys:
+                schema_editor.alter_field(model_class, existing_fields[field], updated_fields[field])
+

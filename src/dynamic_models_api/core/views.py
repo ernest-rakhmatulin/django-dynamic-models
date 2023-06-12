@@ -6,6 +6,7 @@ from .models import DynamicModel
 from .serializers import DynamicModelSerializer
 from .services import DynamicModelService
 
+
 class DynamicModelViewSet(ModelViewSet):
     queryset = DynamicModel.objects.all()
     serializer_class = DynamicModelSerializer
