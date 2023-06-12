@@ -29,7 +29,6 @@ class DynamicModelServiceTestCase(TestCase):
     def test_prepare_fields(self):
         fields = DynamicModelService.prepare_fields(self.model_instance)
         expected_fields = {
-            'id': models.BigAutoField(auto_created=True, primary_key=True, serialize=False),
             'string_field': models.TextField(),
             'number_field': models.FloatField(),
             'boolean_field': models.BooleanField()

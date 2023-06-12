@@ -12,8 +12,8 @@ from rest_framework import serializers
 from core.models import DynamicModel
 
 
-DynamicModelType = TypeVar('DynamicModelType', bound=models.Model)
-DynamicModelSerializerType = TypeVar('DynamicModelSerializerType', bound=serializers.ModelSerializer)
+DynamicModelType = TypeVar('DynamicModelType')
+DynamicModelSerializerType = TypeVar('DynamicModelSerializerType')
 
 
 class DynamicModelService:
@@ -42,9 +42,7 @@ class DynamicModelService:
         Prepare the model fields for the dynamic model based on the
         field definitions in the model instance.
         """
-        model_fields: Dict[str, models.Field] = {
-            'id': models.BigAutoField(auto_created=True, primary_key=True, serialize=False)
-        }
+        model_fields: Dict[str, models.Field] = dict()
 
         for field in model_instance.fields:
             field_type = field['type']
