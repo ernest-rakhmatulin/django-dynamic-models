@@ -15,6 +15,7 @@ class CoreConfig(AppConfig):
         targets = executor.loader.graph.leaf_nodes(CoreConfig.name)
         migrations_to_apply = executor.migration_plan(targets)
 
-        # If there are no migrations to apply (i.e., all migrations have been already applied)
+        # This check helps prevent any issues that may arise
+        # when applying real migrations to the database.
         if not migrations_to_apply:
             DynamicModelService.prepare_existing_models_on_ready()

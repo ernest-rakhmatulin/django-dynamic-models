@@ -1,8 +1,8 @@
 from django.test import TestCase
 from django.db import models
 from django.apps import apps
-
 from rest_framework import serializers
+
 from core.models import DynamicModel
 from core.services import DynamicModelService
 

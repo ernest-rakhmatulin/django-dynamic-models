@@ -59,15 +59,6 @@ class DynamicModelService:
     def create_model_class(model_instance: DynamicModel) -> DynamicModelType:
         """
         Create a dynamic model class based on the model instance.
-
-        This method creates a model class dynamically based on the
-        provided model instance. It uses information from the instance,
-        such as the model name and fields, to construct a dynamic model
-        class that inherits from `models.Model`. The model class is
-        supplemented with metadata, such as the database table name
-        associated with the model.
-
-        The dynamically created model class is returned as the result.
         """
         table_name = DynamicModelService.prepare_table_name(model_instance)
         model_fields = DynamicModelService.prepare_fields(model_instance)
@@ -85,14 +76,7 @@ class DynamicModelService:
     def create_serializer_class(model_instance: DynamicModel) -> DynamicModelSerializerType:
         """
         Create a serializer class for the dynamic model based on the model instance.
-
-        This method creates a serializer class for the given dynamic
-        model. It uses the provided model_instance to determine the
-        model class associated with the dynamic model. The serializer
-        class is dynamically created using Python's type() function
-        and inherits from the rest_framework.serializers.ModelSerializer.
         """
-
         model_class = DynamicModelService.get_or_create_model_class(model_instance)
 
         serializer_meta = type('Meta', (), {
@@ -125,7 +109,7 @@ class DynamicModelService:
         the `CoreConfig` class in the app's AppConfig.
 
         It creates model classes for all existing DynamicModel
-        instances if there are no pending migrations to apply.
+        instances on start or restart of the application.
         """
         for model_instance in DynamicModel.objects.all():
             DynamicModelService.create_model_class(model_instance)
@@ -145,22 +129,7 @@ class DynamicModelService:
         """
         Update the database table schema for a dynamic model based
         on the changes in the model instance.
-
-        This method modifies the database table schema to reflect any
-        changes in the model fields defined in the provided
-        model_instance. It compares the existing fields in the database
-        with the updated fields in the model_instance and performs the
-        necessary operations such as removing fields, adding new
-        fields, or altering existing fields.
-
-        If altering a field causes a DataError, the original field
-        is removed and the updated field is added instead.
-
-        After updating the table schema, the app registry cache
-        is cleared to reflect the changes, and the updated
-        model class is created based on the model_instance.
         """
-
         model_class = apps.get_model(app_label='core', model_name=model_instance.name)
         existing_fields = {field.name: field for field in model_class._meta.get_fields()}
         updated_fields = DynamicModelService.prepare_fields(model_instance)
