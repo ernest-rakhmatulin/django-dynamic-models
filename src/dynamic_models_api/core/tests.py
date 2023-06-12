@@ -68,13 +68,12 @@ class DynamicModelServiceTestCase(TestCase):
         self.assertEqual(model_class.__name__, 'NotExistingModel')
 
     def test_update_table_for_model_removes_fields(self):
-        # Create the initial table
         DynamicModelService.create_table_for_model(self.model_instance)
 
         # Remove a field from the model instance
         self.model_instance.fields.pop(0)
         self.model_instance.save()
-        # Update the table for the model
+
         DynamicModelService.update_table_for_model(self.model_instance)
 
         # Check if the field has been removed from the table
@@ -83,13 +82,11 @@ class DynamicModelServiceTestCase(TestCase):
         self.assertNotIn('string_field', field_names)
 
     def test_update_table_for_model_adds_fields(self):
-        # Create the initial table
         DynamicModelService.create_table_for_model(self.model_instance)
 
         # Add a new field to the model instance
         self.model_instance.fields.append({'name': 'new_field', 'type': 'string'})
 
-        # Update the table for the model
         DynamicModelService.update_table_for_model(self.model_instance)
 
         # Check if the new field has been added to the table
@@ -98,18 +95,16 @@ class DynamicModelServiceTestCase(TestCase):
         self.assertIn('new_field', field_names)
 
     def test_update_table_for_model_alters_fields(self):
-        # Create the initial table
         DynamicModelService.create_table_for_model(self.model_instance)
 
         # Modify an existing field (number field to be a string) in the model instance
         self.model_instance.fields[1]['type'] = 'string'
 
-        # Update the table for the model
         DynamicModelService.update_table_for_model(self.model_instance)
 
         # Check if the field name has been updated in the table
         model_class = apps.get_model(app_label='core', model_name='TestModel')
         self.assertEquals(
             model_class.number_field.field.__class__,
-            DynamicModelService.fields_map['string']['class']
+            DynamicModelService.FIELDS_MAP['string']
         )
