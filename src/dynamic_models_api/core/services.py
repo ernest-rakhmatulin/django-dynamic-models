@@ -50,6 +50,9 @@ class DynamicModelService:
             if field_class:
                 model_fields[field['name']] = field_class()
 
+        # Setting the attributes for each field based on its name is
+        # necessary to ensure that the field behaves correctly within
+        # the Django ORM and database operations.
         for name, field in model_fields.items():
             field.set_attributes_from_name(name)
 
